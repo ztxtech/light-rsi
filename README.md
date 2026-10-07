@@ -1,44 +1,88 @@
-# codex-rsi
+# light-rsi
 
-Codex 控制逻辑（RSI 循环）：把本仓库 clone 成目标项目的 `.codex_rsi/`，再由项目级 `AGENTS.md` 在每一轮开始时触发。
+[![Project page](https://img.shields.io/badge/Project-GitHub_Pages-0F7B4F?logo=github)](https://ztxtech.github.io/light-rsi/)
+[![Repository](https://img.shields.io/badge/GitHub-light--rsi-181717?logo=github)](https://github.com/ztxtech/light-rsi)
+[![Harness](https://img.shields.io/badge/Harness-any_AGENTS.md-4B5563?logo=openai)](https://agents.md)
+[![Dependencies](https://img.shields.io/badge/Dependencies-none-0F7B4F)](#install)
+[![Terse](https://img.shields.io/badge/Output-terse_by_default-4B5563)](#hard-rules)
 
-移植自 aion 的时间序列 RSI 控制逻辑（commit `b28f54e`），去掉全部时间序列内容，并按 Codex 的使用习惯精简：只保留主循环和两个子 Agent，其余能力交给 Codex 内置工具。
+A lightweight recursive self-improvement (RSI) loop that drops into any project following the `AGENTS.md` convention. No SDK, no runtime, no configuration to wire up: clone the folder, point the agent at `goal.md`, and run.
 
-## 安装
+## What it is
 
-1. clone 到目标项目根目录下的 `.codex_rsi/`：
+light-rsi keeps only the part that lets a system improve itself:
+
+```
+goal → diagnose → independent diagnosis → brainstorm → external evidence
+     → implement → independent evaluation → iterate → close
+```
+
+Two sub-agents support the loop: a web-research agent that brings in outside information, and a blank-context evaluator that diagnoses and judges without inheriting the main agent's reasoning.
+
+Everything else stays outside. Plans, state, logs, traces, code, data, and results belong to the host project and are never managed here.
+
+| Inside `.light-rsi/` | Outside `.light-rsi/` |
+| --- | --- |
+| `goal.md`: objective and done criteria | The host project's plans and state files |
+| `memory/positive.md`, `memory/negative.md`: what the loop learned about itself | Logs, traces, run artifacts |
+| `AGENTS.md`: the loop protocol | Code, data, results |
+| `agents/`: the two sub-agent prompts | Project-level memory and domain knowledge |
+
+Memory is RSI-scoped on purpose: it records which loop rules, checks, and search moves worked or failed, never project knowledge. Entries carry a status, evidence, limits, and a compatibility judgment (`exact`, `partial`, `none`, `unknown`). Only `exact` matches may be reused as a prior; `partial` or `unknown` matches must pass the cheapest adaptation test first; `none` is contrast only, and the loop retries instead of forcing an old answer onto a new problem.
+
+<a id="hard-rules"></a>
+## Hard rules
+
+- **Terse by default.** The fewest words that keep the meaning. No filler, no restating, no padding. Terseness never removes facts, evidence, uncertainty, or blockers.
+- **No slacking.** No fake completion, no superficial patch, no skipped check, no invented result. Anything not run is labeled `not verified`.
+- **Goal first.** The objective and its done criteria are read before any work, and every round is judged against them.
+- **Blind review.** The evaluator never receives the main agent's reasoning or expected conclusion.
+
+## Install
+
+1. Clone into the project root:
 
 ```bash
-git clone https://github.com/ztxtech/codex-rsi <项目根>/.codex_rsi
+git clone https://github.com/ztxtech/light-rsi <project-root>/.light-rsi
 ```
 
-2. 在目标项目的 `AGENTS.md` 里加一节，让每一轮开始自动进入 RSI：
+2. Add one section to the host project's `AGENTS.md`:
 
 ```markdown
-## RSI 控制逻辑
+## RSI loop
 
-每一轮开始前先读 `.codex_rsi/AGENTS.md`，按其中的 RSI 主循环执行：
-诊断问题 → 独立诊断（复杂问题）→ 头脑风暴 → 搜索补证据 → 实现 → 独立评估 → 迭代。
-需要外部信息时派 `.codex_rsi/agents/web-research.md` 的联网搜索 Agent；
-复杂问题先派 `.codex_rsi/agents/evaluator.md` 的独立诊断 Agent，收口前再用它进入评估模式。
-可复用记忆（`doc/memory/positive.md`、`doc/memory/negative.md`）、任务台账
-（`doc/tasks/PLAN.md`、`doc/tasks/STATE.md`）和日志 `trace.md` 写在项目根，
-`trace.md` 只记一次任务发生了什么，不代替 positive / negative 总结。
-`.codex_rsi/` 内不写运行记录。
+Before each round, read `.light-rsi/AGENTS.md` and run its loop.
+The goal is `.light-rsi/goal.md`.
 ```
 
-首次使用时，如果上述记忆或台账文件不存在，先创建带标题的空文件；
-已有文件必须先读再追加，不覆盖历史条目。
+3. On the first run the loop creates `goal.md` and `memory/positive.md` / `memory/negative.md` from the shipped templates. These runtime files are git-ignored, so they never conflict with upstream updates.
+4. Optional: add `.light-rsi/` to the host project's `.gitignore`, or vendor it as a submodule.
 
-## 结构
+## Goal mode
 
-| 路径 | 说明 |
+light-rsi does not depend on a specific harness. It follows the `AGENTS.md` convention, so any agent that reads `AGENTS.md` can run it: Codex, Claude Code, OpenCode, or a custom loop.
+
+If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say: *complete the goal in `.light-rsi/goal.md`*. The protocol takes over from there: it reads the goal, diagnoses the gap, brings in external evidence, implements the smallest verifiable step, evaluates with a blank context, and keeps iterating until the done criteria are met.
+
+## Why this design works
+
+1. **A system must see what it is missing.** Recursive improvement starts with gap detection. Without it, the loop only re-runs what it already knows and mistakes motion for progress.
+2. **Judgment must have discriminating power.** A weak evaluator cannot separate real progress from activity, so it stops early or churns. The evaluator here starts from raw artifacts with a blank context, and it may not say "can stop" while any blocker or higher-value action remains.
+3. **Solving requires new information.** Pure self-analysis converges to a fixed point: the system keeps re-deriving its own assumptions. The loop therefore opens the search space outward (answer-first search, similar problems, weaker subproblems, leading-route DFS, failure questions, cross-domain literature) and treats the result as evidence, not as a conclusion.
+
+## Structure
+
+| Path | Role |
 | --- | --- |
-| `AGENTS.md` | 主协议：RSI 循环、角色分工、记忆与 trace 必记清单、可停条件 |
-| `agents/web-research.md` | 联网搜索 Agent 提示词 |
-| `agents/evaluator.md` | 空白上下文独立诊断与评估 Agent 提示词 |
+| `AGENTS.md` | Loop protocol: scope, hard rules, goal, memory, nine-step loop, stop conditions |
+| `agents/web-research.md` | External-evidence agent: answer-first, BFS, decomposition, DFS, failure questions, trends |
+| `agents/evaluator.md` | Blank-context diagnosis and evaluation agent |
+| `goal.template.md` | Goal schema, copied to `goal.md` on first run |
+| `memory/*.template.md` | Memory schema, copied to `memory/*.md` on first run |
+| `docs/` | Project page |
 
-## 说明
+## Acknowledgments
 
-- 本仓库自身的开发记录（台账、日志、决策）在 codex-rsi 工作区外层，不写进本仓库。
-- `.codex_rsi/` 只放控制逻辑；运行产物、日志、缓存不进 git。
+light-rsi is a lightweight extraction of the RSI loop from [AION](https://github.com/ztxtech/aion), a harness built for time-series work. AION is a good project; it simply did not have enough compute and experiment hardware behind it. So we pulled its RSI loop out into a small external component that can be used every day.
+
+It does not favor any harness: it follows the `AGENTS.md` convention. Your harness only needs a goal mode. Point it at the goal in `.light-rsi/` and it can keep going, because the agent starts from this directory and runs the whole loop here.
