@@ -18,9 +18,9 @@ git clone https://github.com/ztxtech/codex-rsi <项目根>/.codex_rsi
 ## RSI 控制逻辑
 
 每一轮开始前先读 `.codex_rsi/AGENTS.md`，按其中的 RSI 主循环执行：
-找问题 → 头脑风暴 → 搜索补证据 → 实现 → 独立评估 → 迭代。
+诊断问题 → 独立诊断（复杂问题）→ 头脑风暴 → 搜索补证据 → 实现 → 独立评估 → 迭代。
 需要外部信息时派 `.codex_rsi/agents/web-research.md` 的联网搜索 Agent；
-收口前派 `.codex_rsi/agents/evaluator.md` 的评估 Agent（空白上下文）。
+复杂问题先派 `.codex_rsi/agents/evaluator.md` 的独立诊断 Agent，收口前再用它进入评估模式。
 记忆三件套（`doc/tasks/PLAN.md`、`doc/tasks/STATE.md`、`trace.md`）写在项目根，
 `.codex_rsi/` 内不写运行记录。
 ```
@@ -31,7 +31,7 @@ git clone https://github.com/ztxtech/codex-rsi <项目根>/.codex_rsi
 | --- | --- |
 | `AGENTS.md` | 主协议：RSI 循环、角色分工、记忆与 trace 必记清单、可停条件 |
 | `agents/web-research.md` | 联网搜索 Agent 提示词 |
-| `agents/evaluator.md` | 空白上下文评估 Agent 提示词 |
+| `agents/evaluator.md` | 空白上下文独立诊断与评估 Agent 提示词 |
 
 ## 说明
 
