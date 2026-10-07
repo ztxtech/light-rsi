@@ -21,9 +21,14 @@ git clone https://github.com/ztxtech/codex-rsi <项目根>/.codex_rsi
 诊断问题 → 独立诊断（复杂问题）→ 头脑风暴 → 搜索补证据 → 实现 → 独立评估 → 迭代。
 需要外部信息时派 `.codex_rsi/agents/web-research.md` 的联网搜索 Agent；
 复杂问题先派 `.codex_rsi/agents/evaluator.md` 的独立诊断 Agent，收口前再用它进入评估模式。
-记忆三件套（`doc/tasks/PLAN.md`、`doc/tasks/STATE.md`、`trace.md`）写在项目根，
+可复用记忆（`doc/memory/positive.md`、`doc/memory/negative.md`）、任务台账
+（`doc/tasks/PLAN.md`、`doc/tasks/STATE.md`）和日志 `trace.md` 写在项目根，
+`trace.md` 只记一次任务发生了什么，不代替 positive / negative 总结。
 `.codex_rsi/` 内不写运行记录。
 ```
+
+首次使用时，如果上述记忆或台账文件不存在，先创建带标题的空文件；
+已有文件必须先读再追加，不覆盖历史条目。
 
 ## 结构
 
