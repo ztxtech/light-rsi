@@ -1,7 +1,7 @@
 # macOS
 .DS_Store
 
-# 本地环境与缓存
+# Local environments and caches
 .venv/
 venv/
 __pycache__/
@@ -11,22 +11,27 @@ __pycache__/
 .mypy_cache/
 node_modules/
 
-# 运行产物、日志与临时文件
+# Run artifacts, logs, and temp files
 tmp/
 logs/
 *.log
 output/
 work/
 
-# 密钥与本地配置
+# Secrets and local config
 .env
 .env.*
 !.env.example
 
-# 大文件与二进制产物
+# Large files and binary artifacts
 *.npz
 *.npy
 *.pt
 *.pth
 *.ckpt
 *.safetensors
+
+# light-rsi runtime files (created from templates on first run)
+goal.md
+memory/positive.md
+memory/negative.md

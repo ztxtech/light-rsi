@@ -1,116 +1,104 @@
-# Codex 控制逻辑（RSI 循环）
+# light-rsi
 
-本文件是控制逻辑的主协议，安装形态是 `<项目根>/.codex_rsi/AGENTS.md`：项目级 `AGENTS.md` 在每一轮开始时触发本协议，主 Agent 就按下面的循环推进。
-两个子 Agent 的提示词在 `agents/web-research.md` 与 `agents/evaluator.md`。
+A lightweight recursive self-improvement (RSI) loop.
+Install shape: `<project-root>/.light-rsi/`. The host project's `AGENTS.md` points here once per round.
 
-## 角色
+## Scope
 
-| 角色 | 谁来做 | 职责 |
-| --- | --- | --- |
-| 主 Agent | 当前会话 | 接需求、多模态诊断、假设分析、头脑风暴、实现、整合结果、维护记忆 |
-| 联网搜索 Agent | 子 Agent | 先找现成答案；相似问题做 BFS，更弱子问题做拆解，领先路线做 DFS；为诊断假设补正反证据与外部解法 |
-| 独立诊断与评估 Agent | 子 Agent | 空白上下文；诊断模式从原始产物重建问题并做图/统计/ML/假设分析；评估模式核验本轮能否收口 |
+Owned by this directory:
 
-只有这两个子 Agent。其他能力（计划、终端、写代码、联网、读图）用 Codex 内置工具，不新增角色。
+| Path | Role |
+| --- | --- |
+| `goal.md` | The loop's goal and done criteria. Anchors every round. |
+| `memory/positive.md` | Reusable experience about the loop: rules that worked. |
+| `memory/negative.md` | Reusable experience about the loop: paths that failed. |
+| `AGENTS.md` | The loop protocol. |
+| `agents/web-research.md` | External-evidence agent. |
+| `agents/evaluator.md` | Blank-context diagnosis and evaluation agent. |
 
-## 主循环
+Owned by the host project, never managed here: plans, state, traces, logs, code, data, results, project-level memory.
 
-1. **开工**：读 `doc/tasks/PLAN.md`、`doc/tasks/STATE.md`、`doc/memory/positive.md`、`doc/memory/negative.md` 并做开工核对；文件缺失时只创建带标题的空文件，已有文件先读再追加；按需检索 `trace.md`，不要把它当总结。把本轮目标、边界、验收标准写进 PLAN 与 STATE；旧记忆只在与当前场景完全适配时直接复用，部分适配或未判定时先重试；目标含糊先补齐再动手。
-2. **诊断问题**：先写清现象、核心矛盾、最大缺口和边界。只要材料适合可视化就先画图再看图：数据/结果看分布、关系、切片、误差、残差、漂移和校准；系统问题看流程、依赖、调用链、状态和时间线。图生成后检查坐标、图例、字体和分辨率，图不清晰先修图再判断。高维特征再考虑 PCA / t-SNE / UMAP 等降维，t-SNE 只用于提出假设，不能单独证明簇或机制。统计按「描述统计 → 分组/分层 → 推断与效应量 → 因果与稳健性」逐层检查；模型问题再查基线、消融、误差桶、失败案例、学习曲线、特征归因和表征漂移。列竞争假设，逐条写预期证据、反驳条件、最便宜验证和当前支持度，不确定项写成待检索问题。
-3. **独立诊断**：复杂、高风险或证据冲突的问题派独立诊断 Agent（空白上下文）；只给目标、原始产物路径、诊断问题和输出要求，不传主 Agent 的结论。诊断 Agent 必须独立看图、算统计、查原始证据、提竞争假设并标出未知；简单问题可跳过，但要在 trace 写明理由。
-4. **头脑风暴**：围绕诊断出的核心矛盾开候选路线，数量不设固定下限，按问题复杂度决定；每条给出可行性理由、最大风险、第一步验证；先验证最便宜的关键假设。
-5. **补证据**：需要外部信息就派联网搜索 Agent；把诊断中的不确定假设、需要判别的事实和现有候选解法一起交给它。按「answer-first 现成答案 → BFS 相似问题 → 更弱子问题拆解 → DFS 领先路线 → 反向失败问 → 趋势与更新」搜索，并按相关性查数学/统计/物理顶级文献。每一轮都重新搜索一轮，用新证据重估路线，上一轮的路线不自动沿用。能复用的成熟解法先吸收；外部信息只能当证据，不能直接当结论。可复用结论先写成记忆候选，验证后再进入 positive / negative。
-6. **实现**：主 Agent 直接推进；小步走，每步留下可复现的产物与验证方式。
-7. **独立评估**：派独立诊断与评估 Agent 进入评估模式（空白上下文）；只给目标、产物路径、验收标准，重点检查诊断链是否真的闭环。
-8. **迭代**：评估有阻塞 → 带阻塞清单回到第 2 步重新诊断；只打局部补丁不算解决。
-9. **收口**：满足「可停条件」才停；停前复核 positive / negative 候选，更新 PLAN、STATE、记忆文件，并提交。
+Runtime files are created from their templates and stay git-ignored: `goal.md`, `memory/positive.md`, `memory/negative.md`.
 
-循环不设固定轮数；继续还是停止，只由「评估结论 + 是否还有更高价值动作」决定。
+## Hard rules (bind every round)
 
-## 思考纪律
+1. **Terse by default.** Use the fewest words that keep the meaning. No filler, no restating, no repeated summaries, no decorative prose. Terseness never removes facts, numbers, evidence, uncertainty, or blockers.
+2. **No slacking.** No fake completion, no superficial patch, no skipped check, no invented result. If it was not run, write `not verified`.
+3. **Evidence only.** Every conclusion points to a file, command, source, or reproducible run. Keep facts, inferences, and unknowns separate.
+4. **Goal first.** Read `goal.md` before acting. If the objective or its done criteria are unclear or uncheckable, fix the goal before implementing.
+5. **Blind review.** The independent agent never receives the main agent's reasoning, conclusions, or expectations.
 
-- 先写核心矛盾与约束，再列路线；路线差异要体现在假设、方法或验证方式上。
-- 诊断先于方案：能画图就先画图，能分层统计就不只看总体，能做假设反驳就不只堆解释；图和统计必须真正进入结论，不能只当装饰。
-- 相关不等于因果：因果判断要检查混杂、选择偏差、数据泄漏、干预和时间顺序；样本不足时写不确定，不强行给显著性结论。
-- 先找现成答案，再自己探索：相似问题用 BFS 扩空间，更弱子问题向下拆，领先路线用 DFS 追到实现、限制和失效条件；数学、统计、物理的顶级文献按方法相关性优先查。
-- 路线数量不设固定配额：问题简单就走一条，复杂才分叉；不为凑数量造路线。
-- 每轮循环后重新搜索、重新头脑风暴；旧路线只是候选输入，不是固定计划。
-- 连续两轮只做参数微调、措辞修改这类没有新信息的动作 → 判为原地打转，必须换思路。
-- 事实、推断、未验证分开写；不确定的一律标「未验证」，不写进结论。
-- 结论必须能回到证据：文件、命令输出、日志、来源链接或可复现实验。
+## Goal
 
-## 记忆与日志
+`goal.md` is the most important file here: the loop's anchor lives inside this directory while plans, state, and logs stay outside.
 
-| 文件 | 放什么 | 规则 |
-| --- | --- | --- |
-| `doc/tasks/PLAN.md` | 待办与下一步 | 开工先读；做完划掉；能删就删 |
-| `doc/tasks/STATE.md` | 当前事实：环境、路径、最好结果、未决问题 | 变化后立即更新 |
-| `doc/memory/positive.md` | 已验证有效、值得复用的规则与策略 | 写证据、适用范围、边界和兼容性；只作为先验，不自动升级成硬规则 |
-| `doc/memory/negative.md` | 已验证失败、无效假设、风险和禁区 | 写失败原因、适用边界和重试条件；不能只写“试过不行” |
-| `trace.md` | 操作日志：按「trace 必记清单」逐轮追加 | 只追加 |
+- One objective, one sentence.
+- Done criteria must be checkable by a command, file, or observation, not by an adjective.
+- Constraints and non-goals bound the search space; state them explicitly.
+- Status: `active | done | blocked`.
+- Only a redefinition by the user rewrites the objective; the loop updates `Status` and `Updated` at closeout.
+- If the harness has a goal or loop mode, point it at this file: "complete the goal in `.light-rsi/goal.md`".
 
-`trace` 记录一次任务发生了什么，不保存总结、规则状态或长期结论；可复用经验必须进入 positive / negative。
+## Loop
 
-记忆条目按下面字段写：
+1. **Open.** Read `goal.md` and both memory files; create missing runtime files from templates. Check the host project's current state read-only. State this round's target, boundary, and acceptance checks in the fewest words.
+2. **Diagnose.** State the gap between current and goal state. Visualize first when the material allows it, then layered statistics, then model and experiment checks. List competing hypotheses with expected evidence, falsifiers, and the cheapest test.
+3. **Independent diagnosis.** For complex, high-risk, or conflicting problems, dispatch `agents/evaluator.md` in `diagnosis` mode with a blank context: goal, raw artifact paths, questions, output contract. It rebuilds the phenomenon from raw evidence. Skip only for simple problems and say why.
+4. **Brainstorm.** Open candidate routes around the diagnosed core contradiction. No fixed quota; each route gives feasibility, biggest risk, and first test. Test the cheapest critical assumption first.
+5. **Gather evidence.** Dispatch `agents/web-research.md` with uncertain hypotheses, discriminating facts, and current candidates. Search order: answer-first, BFS similar problems, weaker subproblems, DFS leading route, reverse and failure questions, trends. Re-search every round; previous routes are inputs, not a plan. Reuse mature solutions when they fit; external information is evidence, not a conclusion.
+6. **Implement.** Smallest verifiable step. Leave artifacts and a reproducible entry point.
+7. **Independent evaluation.** Dispatch `agents/evaluator.md` in `evaluation` mode with a blank context: goal, artifact paths, done criteria. It checks whether the diagnosis chain closed and whether claims survive the evidence.
+8. **Iterate.** Blockers go back to step 2. A local patch is not a fix.
+9. **Close.** Stop only when every done criterion is met with evidence, no blocker or higher-value action remains, memory is reviewed, and the host project's own records are updated by its own rules.
 
-- ID 与日期
-- 状态：候选 / 已验证 / 已失效
-- 规则或结论
-- 适用场景
-- 证据（文件、命令、实验、来源）
-- 边界、反例和已知失败条件
-- 兼容性：完全适配 / 部分适配 / 不兼容 / 未判定
-- 下一步或重试条件
+No fixed round count. Continue or stop only by evaluation result plus remaining value.
 
-兼容性复核规则：
+## Memory (RSI-scoped)
 
-- 比对任务类型、输入输出、约束、环境与版本、评价方式、规模、失败机制；关键维度全对齐才算“完全适配”。
-- 完全适配可以直接作为先验；部分适配或未判定只能作为候选，先做最便宜的适配验证，不能直接当结论。
-- 不兼容的条目不得强行套用；记录差异并重新尝试，直到形成新的可验证候选。
-- 旧条目与新证据冲突时标“已失效”并补新条目，不删除历史。
-- 默认停留在“候选/已验证”；只有跨任务复核或用户明确确认后，才能升级成稳定规则并写项目级 `AGENTS.md`。
+Memory records only how this loop performs: which rules, checks, and search moves worked or failed. It never stores project knowledge, task results, code details, or host state.
 
-每轮开工读四个文件（两个台账 + 两个记忆）；每轮收口检查记忆是否有新增、降级、失效或冲突，缺项写“无”。换新会话时先读记忆，再读与本轮相关的 trace。
+Fields per entry: ID and date; status `candidate | verified | retired`; rule; scope; evidence; limits, counterexamples, failure conditions; compatibility `exact | partial | none | unknown`; retry condition.
 
-记忆写在项目根（`.codex_rsi` 的上一级）；`.codex_rsi/` 是只读的控制逻辑，不写运行记录。
+Compatibility gate. Compare task type, inputs and outputs, constraints, environment and version, evaluation method, scale, and failure mode:
 
-## trace 必记清单（每轮一条，顺序固定）
+- `exact`: may be reused directly as a prior.
+- `partial` or `unknown`: candidate only; run the cheapest adaptation test first.
+- `none`: contrast only; record the difference and retry. Never force it.
+- Conflict with new evidence: retire the old entry, add a new one, keep history.
+- Sub-agents may only propose candidates with evidence, scope, limits, and compatibility; the main agent reads the current file before writing.
+- Promotion: a rule leaves memory only after cross-task verification or explicit user confirmation, and only into the host project's `AGENTS.md`.
 
-每轮迭代收口时在 `trace.md` 追加一条，标题 `YYYY-MM-DD HH:mm <本轮标题>`，正文按下面固定顺序写；没发生的类别写「无」，不许整段省略。记录必须带证据（路径、命令、数字、链接），不写「差不多」。搜索记录和放弃理由是下一轮不重复走老路的依据。
+## Thinking discipline
 
-- **需求与指令**：本轮目标，用户原话要点、边界、验收标准，以及中途的指令变更。
-- **开工核对**：开工时读了哪些记忆，确认了哪些环境/进程状态，是否发现他人改动。
-- **问题诊断**：现象与差距；用了哪些原始证据、图和统计；讲的什么层级；ML/实验诊断做了什么；竞争假设及支持、反驳、未决状态；独立诊断 Agent 的结论与证据；哪些不确定项交给搜索或本地验证。
-- **搜索记录**：搜了什么问题、改写过哪些查询、覆盖了哪些模式（answer-first、BFS 相似问题、更弱子问题拆解、DFS 领先路线、反向失败问、趋势与更新）、查过哪些相关数学/统计/物理顶级文献、来源（链接/版本/时间）、结论与可信度。
-- **头脑风暴**：本轮候选路线、各自第一步验证；放弃的路线连同放弃理由。
-- **决策**：选了什么、依据是什么、同时放弃了什么。
-- **实现**：改了哪些文件/行为、为什么这样改。
-- **结果与验证**：具体数字、验证命令与结果、通过/失败；负结果照实写。
-- **评估结论**：独立诊断/评估 Agent 的阻塞项原文、解除条件、剩余动作数。
-- **失败与归因**：失败现象、根因、修复动作、教训；中断另记中断原因与恢复动作。
-- **清理与归档**：移动/清理了什么、去向、理由、恢复方式。
-- **同步点**：PLAN/STATE 更新了什么；positive / negative 新增、降级、失效或拒绝的原因；commit hash（还原点）。
-- **未决与下一步**：还差什么、卡在哪、下一轮入口。
+- Core contradiction and constraints before routes.
+- Visualization must enter the conclusion, not decorate it.
+- Correlation is not causation; check confounding, selection, leakage, order, and intervention.
+- Look for a ready answer before reinventing one; BFS opens the space, DFS closes a route down to its failure conditions.
+- Route count follows the problem, never a quota.
+- Re-search and re-brainstorm every round.
+- Two rounds of parameter-only or wording-only changes mean churn: change the approach.
+- Label unverified claims as unverified.
 
-## 子 Agent 派发契约
+## Sub-agent dispatch
 
-派发时只给四类信息：目标、已知输入（路径/事实）、当前焦点、输出要求（按角色文件）。
+Give exactly: goal, known inputs (paths and facts), current focus, output contract from the agent file. Nothing about your own reasoning.
 
-- 独立诊断与评估 Agent 必须空白上下文：不传主 Agent 的推理过程、解释和期望结论。
-- 默认只读；诊断模式需要生成图或中间结果时，只允许写主 Agent 指定的独立诊断输出目录，不得改源码或原始结果。
-- 子 Agent 只能提出 positive / negative 候选，必须带证据、适用范围、边界和兼容性；不能直接改写全局记忆，主 Agent 写入前必须读现有文件。
-- 子 Agent 报出的阻塞项必须原文保留，主 Agent 不得弱化、改写或删减。
+- `agents/evaluator.md` always runs with a blank context.
+- Sub-agents are read-only except for a designated output directory.
+- Blockers are quoted verbatim; never soften or delete them.
 
-## 可停条件（全部满足才允许停）
+## Stop conditions
 
-- 验收标准逐条对上，产物真实存在、可复现（路径、命令、结果都核过）。
-- 诊断链已闭环：相关图和统计已检查，竞争假设有支持/反驳/未决状态，未决项已交搜索或明确说明为何无法验证。
-- 独立诊断与评估 Agent 找不到任何阻塞项、缺口或高价值下一步。
-- 产物里没有未验证的数字、引用或结论。
-- `PLAN.md`、`STATE.md`、`positive.md`、`negative.md`、`trace.md` 已复核；可复用结论有则写入、无则写“无”；改动已提交。
+All must hold:
 
-## 卫生与提交
+- Every done criterion is met and reproducible.
+- The diagnosis chain is closed: competing hypotheses have support, refutation, or an explicit unknown.
+- The independent evaluation reports no blocker and no higher-value next action.
+- No unverified number, citation, or conclusion is presented as fact.
+- Memory was reviewed; new candidates were written or the review is recorded as none.
 
-- 每个稳定步骤及时 commit；一次提交只包含本轮相关文件。
-- 运行产物、日志、缓存、密钥不进 git。
-- 不覆盖别人的改动；不删除来源不明的文件。
+## Hygiene
+
+- Keep run artifacts, logs, caches, and secrets out of this directory.
+- Do not rewrite files another session is reading.
+- Do not delete files of unknown origin.
