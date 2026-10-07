@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>light-rsi: a lightweight RSI loop for any AGENTS.md harness</title>
+<meta name="description" content="light-rsi is a lightweight recursive self-improvement loop that drops into any project following the AGENTS.md convention. Goal-first, two blank-context agents, RSI-scoped memory, no dependencies.">
+<meta property="og:title" content="light-rsi">
+<meta property="og:description" content="A lightweight RSI loop for any AGENTS.md harness. Goal-first, two sub-agents, RSI-scoped memory, no dependencies.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ztxtech.github.io/light-rsi/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%230f7b4f' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%230f7b4f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="light-rsi home">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-name">light-rsi</span>
+  </a>
+  <nav class="topnav" aria-label="Sections">
+    <a href="#scope">Scope</a>
+    <a href="#install">Install</a>
+    <a href="#why">Why</a>
+    <a class="topnav-cta" href="https://github.com/ztxtech/light-rsi">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+      GitHub
+    </a>
+  </nav>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">AGENTS.md native · no dependencies</p>
+      <h1>light-rsi</h1>
+      <p class="lede">
+        A lightweight recursive self-improvement loop that drops into any project
+        following the <code>AGENTS.md</code> convention. Clone the folder, point the
+        agent at <code>goal.md</code>, and let it run.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#install">
+          Get started
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/ztxtech/light-rsi">View source</a>
+      </div>
+      <dl class="stats">
+        <div><dt>Goal anchor</dt><dd>1</dd></div>
+        <div><dt>Sub-agents</dt><dd>2</dd></div>
+        <div><dt>Dependencies</dt><dd>0</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero-loop">
+      <svg class="loop" viewBox="0 0 720 720" role="img" aria-labelledby="loop-title loop-desc">
+        <title id="loop-title">The light-rsi loop</title>
+        <desc id="loop-desc">Nine steps arranged in a ring around the goal file: open, diagnose, blind check, brainstorm, evidence, implement, evaluate, iterate, close.</desc>
+        <circle class="loop-ring" cx="360" cy="360" r="250"></circle>
+        <g class="spokes" aria-hidden="true">
+          <line x1="360" y1="360" x2="360" y2="110"></line>
+          <line x1="360" y1="360" x2="520.7" y2="193.4"></line>
+          <line x1="360" y1="360" x2="600.7" y2="360"></line>
+          <line x1="360" y1="360" x2="520.7" y2="526.6"></line>
+          <line x1="360" y1="360" x2="360" y2="610"></line>
+          <line x1="360" y1="360" x2="199.3" y2="526.6"></line>
+          <line x1="360" y1="360" x2="119.3" y2="360"></line>
+          <line x1="360" y1="360" x2="199.3" y2="193.4"></line>
+        </g>
+        <g class="loop-center" aria-hidden="true">
+          <circle cx="360" cy="360" r="74"></circle>
+          <g class="center-icon" transform="translate(348, 332)">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </g>
+          <text x="360" y="392" text-anchor="middle">goal.md</text>
+        </g>
+        <g class="loop-nodes" id="loop-nodes"></g>
+      </svg>
+      <p class="loop-status" id="loop-status" aria-live="polite">Click a step to inspect it. The loop always reads the goal first.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="scope">
+  <div class="band-inner">
+    <h2>What lives where</h2>
+    <p class="band-lede">
+      light-rsi owns the loop and nothing else. Plans, state, logs, traces, code, data,
+      and results stay with the host project.
+    </p>
+    <div class="boundary">
+      <div class="boundary-col">
+        <h3>Inside <code>.light-rsi/</code></h3>
+        <ul>
+          <li><strong>goal.md</strong><span>Objective and done criteria. The anchor of every round.</span></li>
+          <li><strong>memory/positive.md</strong><span>What worked in the loop itself.</span></li>
+          <li><strong>memory/negative.md</strong><span>What failed, and under which conditions.</span></li>
+          <li><strong>AGENTS.md</strong><span>The nine-step protocol and its hard rules.</span></li>
+          <li><strong>agents/</strong><span>Web research and blank-context evaluator prompts.</span></li>
+        </ul>
+      </div>
+      <div class="boundary-line" aria-hidden="true"></div>
+      <div class="boundary-col boundary-col-out">
+        <h3>Outside <code>.light-rsi/</code></h3>
+        <ul>
+          <li><strong>Plans and state</strong><span>The host project's own trackers.</span></li>
+          <li><strong>Logs and traces</strong><span>Run history owned by the host.</span></li>
+          <li><strong>Code, data, results</strong><span>Everything the work produces.</span></li>
+          <li><strong>Project memory</strong><span>Domain knowledge never enters RSI memory.</span></li>
+        </ul>
+        <p class="boundary-note">
+          RSI memory is deliberately narrow: only rules about running the loop.
+          Reuse is gated by compatibility: <code>exact</code> may be reused,
+          <code>partial</code> and <code>unknown</code> must pass the cheapest
+          adaptation test, <code>none</code> is contrast only.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-soft" id="install">
+  <div class="band-inner">
+    <h2>Run it</h2>
+    <div class="install-grid">
+      <ol class="steps">
+        <li>
+          <h3>Clone into the project</h3>
+          <pre><code>git clone https://github.com/ztxtech/light-rsi \
+  &lt;project-root&gt;/.light-rsi</code></pre>
+        </li>
+        <li>
+          <h3>Point the host AGENTS.md at it</h3>
+          <pre><code>## RSI loop
+
+Before each round, read `.light-rsi/AGENTS.md`
+and run its loop. The goal is `.light-rsi/goal.md`.</code></pre>
+        </li>
+        <li>
+          <h3>State the goal</h3>
+          <p>
+            On first run the loop creates <code>goal.md</code> and the memory files
+            from templates. They are git-ignored, so upstream updates never conflict
+            with your goal or memory.
+          </p>
+        </li>
+      </ol>
+      <aside class="goal-note">
+        <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Goal mode</h3>
+        <p>
+          No harness lock-in. Anything that reads <code>AGENTS.md</code> can run
+          light-rsi: Codex, Claude Code, OpenCode, or your own loop.
+        </p>
+        <p>If the harness has a goal mode, say:</p>
+        <pre><code>Complete the goal in
+.light-rsi/goal.md.</code></pre>
+        <p class="muted">
+          The protocol takes over: diagnose, gather outside evidence, implement,
+          evaluate blind, iterate until the done criteria hold.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="why">
+  <div class="band-inner">
+    <h2>Why this design works</h2>
+    <div class="why-grid">
+      <article>
+        <span class="why-num">01</span>
+        <h3>A system must see what it is missing</h3>
+        <p>
+          Improvement starts with gap detection between the current state and the
+          goal. Without it, the loop only re-runs what it already knows and mistakes
+          motion for progress.
+        </p>
+      </article>
+      <article>
+        <span class="why-num">02</span>
+        <h3>Judgment must have discriminating power</h3>
+        <p>
+          A weak evaluator cannot separate progress from activity, so it stops early
+          or churns. Here the evaluator starts from raw artifacts with a blank
+          context, and may not say "can stop" while a blocker or a higher-value
+          action remains.
+        </p>
+      </article>
+      <article>
+        <span class="why-num">03</span>
+        <h3>Solving requires new information</h3>
+        <p>
+          Pure self-analysis converges to a fixed point: the system keeps re-deriving
+          its own assumptions. The loop opens outward instead, through ready-made
+          answers, similar problems, weaker subproblems, leading-route DFS, failure
+          questions, and cross-domain literature, and treats what it finds as
+          evidence rather than conclusion.
+        </p>
+      </article>
+    </div>
+    <div class="rules">
+      <h3>Hard rules in the entry protocol</h3>
+      <ul>
+        <li><strong>Terse by default.</strong> The fewest words that keep the meaning; terseness never removes evidence, uncertainty, or blockers.</li>
+        <li><strong>No slacking.</strong> No fake completion, no superficial patch, no skipped check, no invented result.</li>
+        <li><strong>Blind review.</strong> The evaluator never inherits the main agent's reasoning or expected conclusion.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band band-ack" id="credits">
+  <div class="band-inner">
+    <h2>Acknowledgments</h2>
+    <p class="ack-lede">
+      light-rsi is a lightweight extraction of the RSI loop from
+      <a href="https://github.com/ztxtech/aion">AION</a>, a harness built for
+      time-series work.
+    </p>
+    <p>
+      AION is a good project; it simply did not have enough compute and experiment
+      hardware behind it. So we pulled its RSI loop out into a small external
+      component that can be used every day.
+    </p>
+    <p>
+      It does not favor any harness: it follows the <code>AGENTS.md</code> convention.
+      Your harness only needs a goal mode. Point it at the goal in
+      <code>.light-rsi/</code> and it can keep going, because the agent starts from
+      this directory and runs the whole loop here.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="footer-brand">light-rsi</span>
+    <nav aria-label="Footer">
+      <a href="https://github.com/ztxtech/light-rsi">GitHub</a>
+      <a href="https://github.com/ztxtech/aion">AION</a>
+      <a href="https://agents.md">AGENTS.md</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="./main.js"></script>
+</body>
+</html>
