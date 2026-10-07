@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# 本地环境与缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+
+# 运行产物、日志与临时文件
+tmp/
+logs/
+*.log
+output/
+work/
+
+# 密钥与本地配置
+.env
+.env.*
+!.env.example
+
+# 大文件与二进制产物
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.safetensors
