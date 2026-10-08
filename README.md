@@ -13,11 +13,11 @@ A lightweight recursive self-improvement (RSI) loop that drops into any project 
 light-rsi keeps only the part that lets a system improve itself:
 
 ```
-goal → diagnose → independent diagnosis → brainstorm → external evidence
-     → implement → independent evaluation → iterate → close
+goal → diagnose → independent diagnosis → gated brainstorm
+     → external evidence → implement → independent evaluation → iterate → close
 ```
 
-Two sub-agents support the loop: a web-research agent that brings in outside information, and a blank-context evaluator that diagnoses and judges without inheriting the main agent's reasoning.
+Two specialist prompts support the loop: a web-research agent that brings in outside information, and a blank-context evaluator that diagnoses and judges without inheriting the main agent's reasoning. A mandatory gate precedes every decomposition and decides whether brainstorming is serial or fills the harness's usable concurrency slots with isolated agents.
 
 Everything else stays outside. Plans, state, logs, traces, code, data, and results belong to the host project and are never managed here.
 
@@ -26,7 +26,7 @@ Everything else stays outside. Plans, state, logs, traces, code, data, and resul
 | `goal.md`: objective and done criteria | The host project's plans and state files |
 | `memory/positive.md`, `memory/negative.md`: what the loop learned about itself | Logs, traces, run artifacts |
 | `AGENTS.md`: the loop protocol | Code, data, results |
-| `agents/`: the two sub-agent prompts | Project-level memory and domain knowledge |
+| `agents/`: the two specialist prompts | Project-level memory and domain knowledge |
 
 Memory is RSI-scoped on purpose: it records which loop rules, checks, and search moves worked or failed, never project knowledge. Entries carry a status, evidence, limits, and a compatibility judgment (`exact`, `partial`, `none`, `unknown`). Only `exact` matches may be reused as a prior; `partial` or `unknown` matches must pass the cheapest adaptation test first; `none` is contrast only, and the loop retries instead of forcing an old answer onto a new problem.
 
@@ -37,6 +37,7 @@ Memory is RSI-scoped on purpose: it records which loop rules, checks, and search
 - **No slacking.** No fake completion, no superficial patch, no skipped check, no invented result. Anything not run is labeled `not verified`.
 - **Goal first.** The objective and its done criteria are read before any work, and every round is judged against them.
 - **Blind review.** The evaluator never receives the main agent's reasoning or expected conclusion.
+- **Parallel-benefit gate.** Before any decomposition, the loop records expected gain, coordination cost, and risk. Parallel agents run only when expected gain is higher than their combined cost and risk.
 
 ## Install
 
@@ -62,19 +63,20 @@ The goal is `.light-rsi/goal.md`.
 
 light-rsi does not depend on a specific harness. It follows the `AGENTS.md` convention, so any agent that reads `AGENTS.md` can run it: Codex, Claude Code, OpenCode, or a custom loop.
 
-If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say: *complete the goal in `.light-rsi/goal.md`*. The protocol takes over from there: it reads the goal, diagnoses the gap, brings in external evidence, implements the smallest verifiable step, evaluates with a blank context, and keeps iterating until the done criteria are met.
+If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say: *complete the goal in `.light-rsi/goal.md`*. The protocol takes over from there: it reads the goal, gates any decomposition, diagnoses the gap, brings in external evidence, implements the smallest verifiable step, evaluates with a blank context, and keeps iterating until the done criteria are met.
 
 ## Why this design works
 
 1. **A system must see what it is missing.** Recursive improvement starts with gap detection. Without it, the loop only re-runs what it already knows and mistakes motion for progress.
 2. **Judgment must have discriminating power.** A weak evaluator cannot separate real progress from activity, so it stops early or churns. The evaluator here starts from raw artifacts with a blank context, and it may not say "can stop" while any blocker or higher-value action remains.
 3. **Solving requires new information.** Pure self-analysis converges to a fixed point: the system keeps re-deriving its own assumptions. The loop therefore opens the search space outward (answer-first search, similar problems, weaker subproblems, leading-route DFS, failure questions, cross-domain literature) and treats the result as evidence, not as a conclusion.
+4. **Parallelism must earn its coordination cost.** When the gate selects it, blank-context brainstorming agents receive separate exploration axes and isolated outputs, cannot see one another, and return raw results. The merge clusters evidence, preserves disagreement, and gives the evaluator artifacts rather than the main agent's preferred route.
 
 ## Structure
 
 | Path | Role |
 | --- | --- |
-| `AGENTS.md` | Loop protocol: scope, hard rules, goal, memory, nine-step loop, stop conditions |
+| `AGENTS.md` | Loop protocol: scope, hard rules, goal, memory, gated parallel dispatch, nine-step loop, stop conditions |
 | `agents/web-research.md` | External-evidence agent: answer-first, BFS, decomposition, DFS, failure questions, trends |
 | `agents/evaluator.md` | Blank-context diagnosis and evaluation agent |
 | `goal.template.md` | Goal schema, copied to `goal.md` on first run |
