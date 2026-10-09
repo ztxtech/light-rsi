@@ -28,6 +28,8 @@ Runtime files are created from their templates and stay git-ignored: `goal.md`, 
 4. **Goal first.** Read `goal.md` before acting. If the objective or its done criteria are unclear or uncheckable, fix the goal before implementing.
 5. **Blind review.** The independent agent never receives the main agent's reasoning, conclusions, or expectations.
 6. **Parallel-benefit gate.** Before any decomposition, including diagnosis or brainstorming, record expected gain, coordination cost, and risk. Dispatch parallel agents only when expected gain is higher than their combined coordination cost and risk.
+7. **Comments by contract.** Write thorough critical comments in the current user's interaction language, or the language the user explicitly requests. Document contracts, invariants, assumptions, failure modes, trade-offs, and verification; update comments when behavior changes.
+8. **Abstraction before implementation.** Expose the abstract flow before concrete details. Keep implementation inside focused functions or classes behind stable contracts so the main path can be reviewed without reading every detail.
 
 ## Goal
 
@@ -79,6 +81,25 @@ Compatibility gate. Compare task type, inputs and outputs, constraints, environm
 - Re-search and re-brainstorm every round.
 - Two rounds of parameter-only or wording-only changes mean churn: change the approach.
 - Label unverified claims as unverified.
+
+## Development discipline
+
+Comments are part of the interface, not decoration.
+
+- Language: use the current user's primary interaction language by default. Follow an explicit language request or an established project convention when one exists.
+- Required coverage: public APIs, module and class responsibilities, non-obvious control flow, state transitions, concurrency, external I/O, security and data boundaries, assumptions, invariants, failure modes, retries, trade-offs, and verification steps.
+- Content: explain intent, contract, consequences, and why the code is shaped this way. Do not restate syntax or narrate obvious assignments.
+- Placement: keep each comment beside the code it governs. Update code and comments in the same change.
+
+Structure code from abstraction to implementation:
+
+1. Put the public entry point or module-level flow first. Name the major steps and show their order with minimal glue code.
+2. Define stable contracts for each step: inputs, outputs, side effects, errors, and ownership.
+3. Put concrete details in focused functions or classes behind those contracts. Do not bury the main flow in low-level branching, parsing, I/O, or framework glue.
+4. Keep dependencies pointing inward. A concrete implementation must not force unrelated callers to know its internals.
+5. Add an abstraction only when it names a real responsibility and makes the flow easier to inspect. Avoid pass-through wrappers and speculative layers.
+
+The review path must let a reader verify the abstract behavior first, then inspect implementation details without reconstructing the overall flow.
 
 ## Parallel-benefit gate and dispatch
 

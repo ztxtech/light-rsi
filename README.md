@@ -38,6 +38,8 @@ Memory is RSI-scoped on purpose: it records which loop rules, checks, and search
 - **Goal first.** The objective and its done criteria are read before any work, and every round is judged against them.
 - **Blind review.** The evaluator never receives the main agent's reasoning or expected conclusion.
 - **Parallel-benefit gate.** Before any decomposition, the loop records expected gain, coordination cost, and risk. Parallel agents run only when expected gain is higher than their combined cost and risk.
+- **Comments by contract.** Critical comments use the current user's language and explain contracts, assumptions, failure modes, trade-offs, and verification. Comments change with the code.
+- **Abstraction before implementation.** Public flow comes first; concrete details stay in focused functions or classes behind stable contracts.
 
 ## Install
 
@@ -71,12 +73,14 @@ If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say
 2. **Judgment must have discriminating power.** A weak evaluator cannot separate real progress from activity, so it stops early or churns. The evaluator here starts from raw artifacts with a blank context, and it may not say "can stop" while any blocker or higher-value action remains.
 3. **Solving requires new information.** Pure self-analysis converges to a fixed point: the system keeps re-deriving its own assumptions. The loop therefore opens the search space outward (answer-first search, similar problems, weaker subproblems, leading-route DFS, failure questions, cross-domain literature) and treats the result as evidence, not as a conclusion.
 4. **Parallelism must earn its coordination cost.** When the gate selects it, blank-context brainstorming agents receive separate exploration axes and isolated outputs, cannot see one another, and return raw results. The merge clusters evidence, preserves disagreement, and gives the evaluator artifacts rather than the main agent's preferred route.
+5. **Critical comments belong to the interface.** They record the contracts and decisions a reviewer cannot safely infer from syntax, and they are written in the language the user is using.
+6. **Abstract flow comes first.** The main path shows the named steps and their order. Concrete parsing, I/O, branching, and framework details live behind those steps so review can start at the right level.
 
 ## Structure
 
 | Path | Role |
 | --- | --- |
-| `AGENTS.md` | Loop protocol: scope, hard rules, goal, memory, gated parallel dispatch, nine-step loop, stop conditions |
+| `AGENTS.md` | Loop protocol: scope, hard rules, development discipline, goal, memory, gated parallel dispatch, nine-step loop, stop conditions |
 | `agents/web-research.md` | External-evidence agent: answer-first, BFS, decomposition, DFS, failure questions, trends |
 | `agents/evaluator.md` | Blank-context diagnosis and evaluation agent |
 | `goal.template.md` | Goal schema, copied to `goal.md` on first run |

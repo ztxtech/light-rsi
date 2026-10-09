@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>light-rsi: a lightweight RSI loop for any AGENTS.md harness</title>
-<meta name="description" content="light-rsi is a lightweight recursive self-improvement loop that drops into any project following the AGENTS.md convention. Goal-first, gated parallel brainstorming, blank-context review, RSI-scoped memory, no dependencies.">
+<meta name="description" content="light-rsi is a lightweight recursive self-improvement loop that drops into any project following the AGENTS.md convention. Goal-first, gated parallel brainstorming, abstraction-first development, commented contracts, and RSI-scoped memory.">
 <meta property="og:title" content="light-rsi">
-<meta property="og:description" content="A lightweight RSI loop for any AGENTS.md harness. Goal-first, gated parallel brainstorming, RSI-scoped memory, no dependencies.">
+<meta property="og:description" content="A lightweight RSI loop for any AGENTS.md harness. Goal-first, gated parallel brainstorming, abstraction-first development, and RSI-scoped memory.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ztxtech.github.io/light-rsi/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%230f7b4f' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%230f7b4f'/%3E%3C/svg%3E">
@@ -101,7 +101,7 @@
           <li><strong>goal.md</strong><span>Objective and done criteria. The anchor of every round.</span></li>
           <li><strong>memory/positive.md</strong><span>What worked in the loop itself.</span></li>
           <li><strong>memory/negative.md</strong><span>What failed, and under which conditions.</span></li>
-          <li><strong>AGENTS.md</strong><span>The nine-step protocol, parallel-benefit gate, and hard rules.</span></li>
+          <li><strong>AGENTS.md</strong><span>The nine-step protocol, parallel-benefit gate, development discipline, and hard rules.</span></li>
           <li><strong>agents/</strong><span>Web-research and blank-context evaluator prompts.</span></li>
         </ul>
       </div>
@@ -214,6 +214,25 @@ and run its loop. The goal is `.light-rsi/goal.md`.</code></pre>
           agreement, and dissent is preserved.
         </p>
       </article>
+      <article>
+        <span class="why-num">05</span>
+        <h3>Critical comments are part of the interface</h3>
+        <p>
+          Comments are written in the user's language and explain contracts,
+          assumptions, failure modes, trade-offs, and verification. They change
+          with the code instead of drifting away from it.
+        </p>
+      </article>
+      <article>
+        <span class="why-num">06</span>
+        <h3>Abstract flow comes first</h3>
+        <p>
+          The public path names the work and shows its order. Parsing, I/O,
+          branching, and framework details stay inside focused functions or
+          classes, so review starts with behavior rather than implementation
+          noise.
+        </p>
+      </article>
     </div>
     <div class="rules">
       <h3>Hard rules in the entry protocol</h3>
@@ -222,6 +241,8 @@ and run its loop. The goal is `.light-rsi/goal.md`.</code></pre>
         <li><strong>No slacking.</strong> No fake completion, no superficial patch, no skipped check, no invented result.</li>
         <li><strong>Blind review.</strong> The evaluator never inherits the main agent's reasoning or expected conclusion.</li>
         <li><strong>Parallel-benefit gate.</strong> Parallel brainstorming runs only when expected gain exceeds its combined coordination cost and risk.</li>
+        <li><strong>Comments by contract.</strong> Critical comments use the current user's language and stay synchronized with contracts, assumptions, failure modes, trade-offs, and verification.</li>
+        <li><strong>Abstraction before implementation.</strong> Public flow comes first; concrete details stay behind stable contracts in focused functions or classes.</li>
       </ul>
     </div>
   </div>
