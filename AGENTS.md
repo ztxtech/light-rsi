@@ -15,6 +15,7 @@ Owned by this directory:
 | `AGENTS.md` | The loop protocol. |
 | `agents/web-research.md` | External-evidence agent. |
 | `agents/evaluator.md` | Blank-context diagnosis and evaluation agent. |
+| `agents/document-reviewer.md` | Blank-context reviewer for high-impact factual project records. |
 
 Owned by the host project, never managed here: plans, state, traces, logs, code, data, results, project-level memory.
 
@@ -30,6 +31,9 @@ Runtime files are created from their templates and stay git-ignored: `goal.md`, 
 6. **Parallel-benefit gate.** Before any decomposition, including diagnosis or brainstorming, record expected gain, coordination cost, and risk. Dispatch parallel agents only when expected gain is higher than their combined coordination cost and risk.
 7. **Comments by contract.** Write thorough critical comments in the current user's interaction language, or the language the user explicitly requests. Document contracts, invariants, assumptions, failure modes, trade-offs, and verification; update comments when behavior changes.
 8. **Abstraction before implementation.** Expose the abstract flow before concrete details. Keep implementation inside focused functions or classes behind stable contracts so the main path can be reviewed without reading every detail.
+9. **Reverify recorded facts.** Periodically review high-impact project documents against dated source evidence and historical versions. History shows what changed, not what is true.
+10. **Main-agent-owned review ledger.** Review agents return findings only. The main agent verifies them and is the only agent allowed to write the official review ledger.
+11. **Useful status replies.** During active work, answer side-conversation status questions with verified counts, findings, current results, and the next gate, then resume the task.
 
 ## Goal
 
@@ -44,7 +48,7 @@ Runtime files are created from their templates and stay git-ignored: `goal.md`, 
 
 ## Loop
 
-1. **Open.** Read `goal.md` and both memory files; create missing runtime files from templates. Check the host project's current state read-only. State this round's target, boundary, and acceptance checks in the fewest words.
+1. **Open.** Read `goal.md` and both memory files; create missing runtime files from templates. Check the host project's current state read-only. Check the host review ledger for due or triggered high-impact factual documents; complete those reviews before relying on their claims. State this round's target, boundary, and acceptance checks in the fewest words.
 2. **Diagnose.** If the gap requires decomposition, complete the parallel-benefit gate first. State the gap between current and goal state. Visualize first when the material allows it, then layered statistics, then model and experiment checks. List competing hypotheses with expected evidence, falsifiers, and the cheapest test.
 3. **Independent diagnosis.** For complex, high-risk, or conflicting problems, dispatch `agents/evaluator.md` in `diagnosis` mode with a blank context: goal, raw artifact paths, questions, output contract. It rebuilds the phenomenon from raw evidence. Skip only for simple problems and say why.
 4. **Brainstorm.** Reuse the gate record when scope is unchanged; update it before a new decomposition. If the gate says `serial`, open routes directly. If it says `parallel`, fill every usable slot with isolated blank-context brainstorming agents and merge by the rules below. Either way, each route gives feasibility, biggest risk, and first test; test the cheapest critical assumption first.
@@ -100,6 +104,41 @@ Structure code from abstraction to implementation:
 5. Add an abstraction only when it names a real responsibility and makes the flow easier to inspect. Avoid pass-through wrappers and speculative layers.
 
 The review path must let a reader verify the abstract behavior first, then inspect implementation details without reconstructing the overall flow.
+
+## Factual-document review
+
+The host project owns the documents and the review ledger. Keep both outside `.light-rsi/` and RSI memory.
+
+- At each round's Open, select factual documents whose errors could change a decision or downstream result. Rank by impact, reuse, age, and difficulty of refreshing; rotate overdue items so the same documents do not monopolize review.
+- Review a document when it has never been reviewed, its due round/date has arrived, its content or source evidence changed, evidence conflicts, or it is needed for a consequential decision before its next due date. If the host project has no cadence, set `next_due` five RSI rounds after review; event triggers still cause earlier review.
+- Use the host project's designated ledger. If none exists, the main agent creates `<host-project-root>/plans/document-review-ledger.md`. Record the chosen path at Open. Never store this ledger under `.light-rsi/` or RSI memory.
+- Before dispatch, identify the review scope, claim sources, current version, available historical versions, dated raw evidence, and questions. Give the reviewer no main-agent analysis, expected verdict, ledger, or previous review conclusions. Historical versions may be supplied as raw artifacts to establish change over time.
+- Dispatch `agents/document-reviewer.md` with a blank context and read-only access. It must not create or edit the ledger, reviewed documents, or other project records. It returns claim-level findings to the main agent.
+- For every claim, distinguish entity, applicable date/range, units, method, and population. Trace derived claims through their generation path. For example-level or multimodal error claims, inspect each example, modality, and generation step; when the set is large, also report relevant statistical features.
+- Prefer dated primary evidence for truth. Use history only to identify edits and prior wording. Classify each claim as `supported`, `contradicted`, `unsupported`, `stale`, or `unknown`; absence of evidence is `unsupported`, not `contradicted`. Mark whether the historical comparison is `unchanged`, `changed with both versions supported`, `changed with prior version only supported`, or `not comparable`.
+- The main agent checks every cited source and then appends one ledger row per claim: review ID/date/round; document path and version; claim ID and exact claim; scope; prior version/difference; verdict and history status; evidence paths and reproducible commands; reviewer; main-agent decision; unresolved issue/follow-up; and `next_due` round/date. Use a VCS revision when available, otherwise a content digest. Include an evidence version or cutoff so changed sources trigger review even when the document did not change. Record inaccessible evidence or rejected reviewer findings as `unknown` with a reason.
+- The ledger is append-only. Correct a prior entry by appending a superseding row that cites it; never erase review history. Do not mark a review complete until the main agent has checked the evidence and written the rows.
+- If a decision depends on an `unsupported`, `stale`, or `unknown` claim, surface it as a blocker and verify it or bound the decision before proceeding. Escalate `contradicted` claims to the project owner and identify downstream decisions/results that used them.
+
+## Side-conversation progress reports
+
+When the user asks for status during an active RSI round, answer first in the user's interaction language with this four-line list, using current run records and verified outputs:
+
+1. **轮次/测试:** completed and active rounds; test counts for passed, failed, and not run.
+2. **每轮发现:** concrete findings per round; label hypotheses and untested fixes as unverified.
+3. **当前最好结果:** metric, denominator, evaluation scope, and source run. Say `not yet measured` when no result exists.
+4. **下一道门槛:** next required action and exact pass condition.
+
+Use this shape and keep each line short:
+
+```text
+- 轮次/测试：已完成 X 轮；已运行 X 项测试（通过 X、失败 X、未运行 X）。
+- 每轮发现：第 1 轮……；第 2 轮……。
+- 当前最好结果：……；尚未测量的结果明确写“未测”。
+- 下一道门槛：……；通过条件：……。
+```
+
+Do not fill gaps with estimates or present a diagnostic sample as a full evaluation. After answering, resume the active RSI task unless the user redirects it.
 
 ## Parallel-benefit gate and dispatch
 

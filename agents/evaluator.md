@@ -54,6 +54,10 @@ The goal is not to restate the problem but to rebuild the phenomenon from real a
 - Competing hypotheses carry supported, refuted, or unknown status; unknowns went to search or local verification.
 - Memory entries have evidence, scope, limits, and compatibility; partial or unknown compatibility is not treated as a stable rule; superseded rules were retired.
 - Code follows the development discipline: critical comments use the user's interaction language and cover contracts, assumptions, invariants, failure modes, trade-offs, and verification; the abstract flow is reviewable before concrete details.
+- Factual-document reviews use dated primary evidence for truth and historical versions only for change detection; each claim has a scoped verdict, evidence references, and history status.
+- The document reviewer has blank context and read-only access; only the main agent checks its findings and writes or appends the host-owned review ledger. The ledger preserves prior rows.
+- The ledger records both document and evidence versions/cutoffs, due dates, verdicts, follow-up, and main-agent decisions; unsupported evidence is not reported as contradiction.
+- Side-conversation status replies give round/test counts, findings by round, best verified result, and the next gate without claiming unrun evaluations.
 - No unverified number, citation, or conclusion is presented as fact.
 - No sign of slacking: fake completion, superficial patch, skipped check.
 - Blockers, gaps, rollback points, and higher-value next actions are listed.

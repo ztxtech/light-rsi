@@ -17,7 +17,7 @@ goal → diagnose → independent diagnosis → gated brainstorm
      → external evidence → implement → independent evaluation → iterate → close
 ```
 
-Two specialist prompts support the loop: a web-research agent that brings in outside information, and a blank-context evaluator that diagnoses and judges without inheriting the main agent's reasoning. A mandatory gate precedes every decomposition and decides whether brainstorming is serial or fills the harness's usable concurrency slots with isolated agents.
+Specialist prompts cover outside research, blank-context evaluation, and periodic fact review. Before decomposition, a gate decides whether independent agents are worth their cost. High-impact factual documents are checked against dated evidence and history; only the main agent writes the host project's append-only review ledger.
 
 Everything else stays outside. Plans, state, logs, traces, code, data, and results belong to the host project and are never managed here.
 
@@ -26,7 +26,7 @@ Everything else stays outside. Plans, state, logs, traces, code, data, and resul
 | `goal.md`: objective and done criteria | The host project's plans and state files |
 | `memory/positive.md`, `memory/negative.md`: what the loop learned about itself | Logs, traces, run artifacts |
 | `AGENTS.md`: the loop protocol | Code, data, results |
-| `agents/`: the two specialist prompts | Project-level memory and domain knowledge |
+| `agents/`: the specialist prompts | Project-level memory and domain knowledge |
 
 Memory is RSI-scoped on purpose: it records which loop rules, checks, and search moves worked or failed, never project knowledge. Entries carry a status, evidence, limits, and a compatibility judgment (`exact`, `partial`, `none`, `unknown`). Only `exact` matches may be reused as a prior; `partial` or `unknown` matches must pass the cheapest adaptation test first; `none` is contrast only, and the loop retries instead of forcing an old answer onto a new problem.
 
@@ -40,6 +40,8 @@ Memory is RSI-scoped on purpose: it records which loop rules, checks, and search
 - **Parallel-benefit gate.** Before any decomposition, the loop records expected gain, coordination cost, and risk. Parallel agents run only when expected gain is higher than their combined cost and risk.
 - **Comments by contract.** Critical comments use the current user's language and explain contracts, assumptions, failure modes, trade-offs, and verification. Comments change with the code.
 - **Abstraction before implementation.** Public flow comes first; concrete details stay in focused functions or classes behind stable contracts.
+- **Review recorded facts.** Periodically check high-impact claims against dated source evidence and history. History shows changes, not truth; review agents cannot write the ledger.
+- **Report progress plainly.** Side-conversation status replies list rounds/tests, findings by round, the best verified result, and the next gate.
 
 ## Install
 
@@ -73,8 +75,10 @@ If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say
 2. **Judgment must have discriminating power.** A weak evaluator cannot separate real progress from activity, so it stops early or churns. The evaluator here starts from raw artifacts with a blank context, and it may not say "can stop" while any blocker or higher-value action remains.
 3. **Solving requires new information.** Pure self-analysis converges to a fixed point: the system keeps re-deriving its own assumptions. The loop therefore opens the search space outward (answer-first search, similar problems, weaker subproblems, leading-route DFS, failure questions, cross-domain literature) and treats the result as evidence, not as a conclusion.
 4. **Parallelism must earn its coordination cost.** When the gate selects it, blank-context brainstorming agents receive separate exploration axes and isolated outputs, cannot see one another, and return raw results. The merge clusters evidence, preserves disagreement, and gives the evaluator artifacts rather than the main agent's preferred route.
-5. **Critical comments belong to the interface.** They record the contracts and decisions a reviewer cannot safely infer from syntax, and they are written in the language the user is using.
-6. **Abstract flow comes first.** The main path shows the named steps and their order. Concrete parsing, I/O, branching, and framework details live behind those steps so review can start at the right level.
+5. **Recorded facts need fresh evidence.** High-impact claims are reviewed against dated primary sources. Historical versions reveal changes but do not prove truth; the main agent checks and records claim-level findings.
+6. **Progress reports need decision facts.** During a run, status replies show how many rounds and tests ran, what each round found, the best measured result, and what must pass next.
+7. **Critical comments belong to the interface.** They record the contracts and decisions a reviewer cannot safely infer from syntax, and they are written in the language the user is using.
+8. **Abstract flow comes first.** The main path shows the named steps and their order. Concrete parsing, I/O, branching, and framework details live behind those steps so review can start at the right level.
 
 ## Structure
 
@@ -83,6 +87,7 @@ If the harness has a goal or loop mode, point it at `.light-rsi/goal.md` and say
 | `AGENTS.md` | Loop protocol: scope, hard rules, development discipline, goal, memory, gated parallel dispatch, nine-step loop, stop conditions |
 | `agents/web-research.md` | External-evidence agent: answer-first, BFS, decomposition, DFS, failure questions, trends |
 | `agents/evaluator.md` | Blank-context diagnosis and evaluation agent |
+| `agents/document-reviewer.md` | Read-only reviewer for factual project documents |
 | `goal.template.md` | Goal schema, copied to `goal.md` on first run |
 | `memory/*.template.md` | Memory schema, copied to `memory/*.md` on first run |
 | `docs/` | Project page |

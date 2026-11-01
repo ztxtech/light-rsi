@@ -2,7 +2,7 @@
   "use strict";
 
   var steps = [
-    { n: 1, label: "Open", text: "Read goal.md and both memory files. Create missing runtime files from templates. Check the host project read-only." },
+    { n: 1, label: "Open", text: "Read goal and loop memory, check the host read-only, and review due or triggered high-impact factual documents against dated evidence." },
     { n: 2, label: "Diagnose", text: "State the gap between current and goal state. Visualize first, then layered statistics, then model checks. List competing hypotheses with falsifiers." },
     { n: 3, label: "Blind check", text: "For complex or conflicting problems, the blank-context evaluator rebuilds the phenomenon from raw artifacts alone." },
     { n: 4, label: "Brainstorm", text: "Record expected gain, coordination cost, and risk before decomposition. If parallel wins, isolated blank-context agents fill every usable slot; merge raw results by evidence, preserve dissent, and test the cheapest critical assumption first." },
@@ -10,7 +10,7 @@
     { n: 6, label: "Implement", text: "Smallest verifiable step. Leave artifacts and a reproducible entry point." },
     { n: 7, label: "Evaluate", text: "The evaluator checks the gate record, raw and merged artifacts, and done criteria with a blank context; it blocks a stop while any blocker remains." },
     { n: 8, label: "Iterate", text: "Blockers return to diagnosis. A local patch is not a fix." },
-    { n: 9, label: "Close", text: "Stop only when every done criterion is met with evidence, memory is reviewed, and no higher-value action remains." }
+    { n: 9, label: "Close", text: "Write verified document-review findings to the host ledger, then stop only when every done criterion holds and no higher-value action remains." }
   ];
 
   var svg = document.querySelector(".loop-nodes");
